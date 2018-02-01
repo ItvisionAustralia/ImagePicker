@@ -506,9 +506,9 @@ public class MultiImageChooserActivity extends AppCompatActivity implements
             private CheckBox checkBox;
 
             public ViewHolder(View convertView) {
-                imageView = convertView.findViewById(fakeR.getId("id", "grid_item_image"));
+                imageView = (SquareImageView) convertView.findViewById(fakeR.getId("id", "grid_item_image"));
                 imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                checkBox = convertView.findViewById(fakeR.getId("id","grid_item_checkbox"));
+                checkBox = (CheckBox) convertView.findViewById(fakeR.getId("id","grid_item_checkbox"));
 
             }
         }
