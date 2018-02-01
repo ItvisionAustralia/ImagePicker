@@ -195,7 +195,7 @@ public class MultiImageChooserActivity extends AppCompatActivity implements
 
         boolean isChecked = !isChecked(position);
         ImageView imageView = (ImageView) view.findViewById(fakeR.getId("id", "grid_item_image"));
-        CheckBox checkBox = view.findViewById(fakeR.getId("id", "grid_item_checkbox"));
+        CheckBox checkBox = (CheckBox) view.findViewById(fakeR.getId("id", "grid_item_checkbox"));
 
 
         if (maxImages == 0 && isChecked) {
