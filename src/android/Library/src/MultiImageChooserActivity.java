@@ -75,6 +75,7 @@ import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.GridView;
 import android.widget.ImageView;
 
@@ -193,6 +194,9 @@ public class MultiImageChooserActivity extends AppCompatActivity implements
         }
 
         boolean isChecked = !isChecked(position);
+        ImageView imageView = (ImageView) view.findViewById(fakeR.getId("id", "grid_item_image"));
+        CheckBox checkBox = view.findViewById(fakeR.getId("id", "grid_item_checkbox"));
+
 
         if (maxImages == 0 && isChecked) {
             isChecked = false;
@@ -215,7 +219,6 @@ public class MultiImageChooserActivity extends AppCompatActivity implements
 
             } else {
                 maxImages--;
-                ImageView imageView = (ImageView) view;
 
                 if (android.os.Build.VERSION.SDK_INT >= 16) {
                   imageView.setImageAlpha(128);
@@ -224,11 +227,11 @@ public class MultiImageChooserActivity extends AppCompatActivity implements
                 }
 
                 view.setBackgroundColor(selectedColor);
+                checkBox.setChecked(true);
             }
         } else {
             fileNames.remove(name);
             maxImages++;
-            ImageView imageView = (ImageView) view;
 
             if (android.os.Build.VERSION.SDK_INT >= 16) {
                 imageView.setImageAlpha(255);
@@ -237,6 +240,7 @@ public class MultiImageChooserActivity extends AppCompatActivity implements
             }
 
             view.setBackgroundColor(Color.TRANSPARENT);
+            checkBox.setChecked(false);
         }
 
         checkStatus.put(position, isChecked);
@@ -426,17 +430,6 @@ public class MultiImageChooserActivity extends AppCompatActivity implements
     /*********************
     * Nested Classes
     ********************/
-    private class SquareImageView extends ImageView {
-        public SquareImageView(Context context) {
-			super(context);
-		}
-
-        @Override
-        public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-            super.onMeasure(widthMeasureSpec, widthMeasureSpec);
-        }
-    }
-
 
     private class ImageAdapter extends BaseAdapter {
 
@@ -458,22 +451,24 @@ public class MultiImageChooserActivity extends AppCompatActivity implements
 
         // create a new ImageView for each item referenced by the Adapter
         public View getView(int position, View convertView, ViewGroup parent) {
-
+            ViewHolder viewHolder;
             if (convertView == null) {
-                ImageView temp = new SquareImageView(MultiImageChooserActivity.this);
-                temp.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                convertView = temp;
+                convertView = LayoutInflater.from(MultiImageChooserActivity.this).inflate(fakeR.getId("layout", "griditem"), null);
+                viewHolder = new ViewHolder(convertView);
+                convertView.setTag(viewHolder);
+            } else {
+                viewHolder = (ViewHolder) convertView.getTag();
             }
 
-            ImageView imageView = (ImageView) convertView;
-            imageView.setImageBitmap(null);
+            viewHolder.imageView.setImageBitmap(null);
+
 
             if (!imagecursor.moveToPosition(position)) {
-                return imageView;
+                return viewHolder.imageView;
             }
 
             if (image_column_index == -1) {
-                return imageView;
+                return viewHolder.imageView;
             }
 
             final int id = imagecursor.getInt(image_column_index);
@@ -481,27 +476,41 @@ public class MultiImageChooserActivity extends AppCompatActivity implements
 
             if (isChecked(position)) {
                 if (android.os.Build.VERSION.SDK_INT >= 16) {
-                  imageView.setImageAlpha(128);
+                    viewHolder.imageView.setImageAlpha(128);
                 } else {
-                  imageView.setAlpha(128);
+                    viewHolder.imageView.setAlpha(128);
                 }
 
-                imageView.setBackgroundColor(selectedColor);
+                viewHolder.imageView.setBackgroundColor(selectedColor);
+                viewHolder.checkBox.setChecked(true);
 
             } else {
                 if (android.os.Build.VERSION.SDK_INT >= 16) {
-                  imageView.setImageAlpha(255);
+                    viewHolder.imageView.setImageAlpha(255);
                 } else {
-                  imageView.setAlpha(255);
+                    viewHolder.imageView.setAlpha(255);
                 }
-                imageView.setBackgroundColor(Color.TRANSPARENT);
+                viewHolder.imageView.setBackgroundColor(Color.TRANSPARENT);
+                viewHolder.checkBox.setChecked(false);
             }
 
             if (shouldRequestThumb) {
-                fetcher.fetch(id, imageView, colWidth, rotate);
+                fetcher.fetch(id, viewHolder.imageView, colWidth, rotate);
             }
 
-            return imageView;
+            return convertView;
+        }
+
+        private class ViewHolder {
+            private SquareImageView imageView;
+            private CheckBox checkBox;
+
+            public ViewHolder(View convertView) {
+                imageView = convertView.findViewById(fakeR.getId("id", "grid_item_image"));
+                imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                checkBox = convertView.findViewById(fakeR.getId("id","grid_item_checkbox"));
+
+            }
         }
     }
 
